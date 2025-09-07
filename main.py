@@ -5,15 +5,15 @@ print('''Привет!
 с краткой информацией о вакансиях и компаниях, полученной при помощи API hh.ru.
 Для продолжения работы введите номер интересующего запроса\n''')
 
-d = DBManager()
+dbmanage = DBManager()
 
-if d.check() is True:
+if dbmanage.check() is True:
     print('Создаем базу данных подождите немного...\n')
-    d.create_tables()
-    d.get_companies_and_vacancies_count()
-    d.get_all_vacancies()
-    d.to_postgresql('employers')
-    d.to_postgresql('vacancies')
+    dbmanage.create_tables()
+    dbmanage.get_companies_and_vacancies_count()
+    dbmanage.get_all_vacancies()
+    dbmanage.to_postgresql('employers')
+    dbmanage.to_postgresql('vacancies')
 
 try:
     print('''    1 - получить среднюю зарплату по полученным вакансиям
@@ -26,19 +26,19 @@ try:
     while True:
         req = int(input("Введите номер опции:"))
         if req == 1:
-            d.get_avg_salary()
+            dbmanage.get_avg_salary()
         elif req == 2:
-            d.get_vacancies_with_higher_salary()
+            dbmanage.get_vacancies_with_higher_salary()
         elif req == 3:
             try:
                 key_word = input('\nВведите ключевое слово: ')
-                d.get_vacancies_with_keyword(key_word)
+                dbmanage.get_vacancies_with_keyword(key_word)
             except:
                 print('\nВакансии не найдены')
         elif req == 4:
-            d.print_employers()
+            dbmanage.print_employers()
         elif req == 5:
-            d.print_vacancies()
+            dbmanage.print_vacancies()
         elif req == 6:
             print('Завершение работы')
             break

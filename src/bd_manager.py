@@ -1,10 +1,9 @@
-from src.iteraction_api import for_API
+from src.iteraction_api import API
 import psycopg2
 import database
 
 
-
-class DBManager(for_API):
+class DBManager(API):
     """
     Класс DBManager создан для работы с базой данных, основанной на данных, полученных с сайта hh.ru.
     В нем реализована централизованное хранение request'ов в базе данных Postgresql.
@@ -27,10 +26,7 @@ class DBManager(for_API):
 
     def con(self):
         self.connect = psycopg2.connect(
-            database=self.db,
-            user=self.user,
-            password=self.pswd,
-            port=self.port
+            database=self.db, user=self.user, password=self.pswd, port=self.port
         )
 
     def create_tables(self):
@@ -38,7 +34,8 @@ class DBManager(for_API):
         try:
             with self.connect:
                 with self.connect.cursor() as cur:
-                    cur.execute('''drop table if exists vacancies;
+                    cur.execute(
+                        """drop table if exists vacancies;
                                 drop table if exists employers;
                                 create table vacancies (
                                     vac_name varchar NOT NULL,
@@ -51,7 +48,8 @@ class DBManager(for_API):
                                     emp_id int unique NOT NULL,
                                     emp_name varchar NOT NULL,
                                     emp_open_vac int
-                                );''')
+                                );"""
+                    )
         finally:
             self.connect.close()
 
@@ -60,14 +58,18 @@ class DBManager(for_API):
         self.con()
         with self.connect:
             with self.connect.cursor() as cur:
-                if tab_name == 'vacancies':
+                if tab_name == "vacancies":
                     for tabs_info in self.vacancies:
-                        cur.execute(f'insert into {tab_name} values (%s, %s, %s, %s)',
-                                    (tabs_info[0], tabs_info[1], tabs_info[2], tabs_info[3]))
-                elif tab_name == 'employers':
+                        cur.execute(
+                            f"insert into {tab_name} values (%s, %s, %s, %s)",
+                            (tabs_info[0], tabs_info[1], tabs_info[2], tabs_info[3]),
+                        )
+                elif tab_name == "employers":
                     for tabs_info in self.employers:
-                        cur.execute(f'insert into {tab_name} values (%s, %s, %s)',
-                                    (tabs_info[0], tabs_info[1], tabs_info[2]))
+                        cur.execute(
+                            f"insert into {tab_name} values (%s, %s, %s)",
+                            (tabs_info[0], tabs_info[1], tabs_info[2]),
+                        )
         # finally:
         self.connect.close()
 
@@ -76,7 +78,7 @@ class DBManager(for_API):
         try:
             with self.connect:
                 with self.connect.cursor() as cur:
-                    cur.execute('select avg(salary) from vacancies;')
+                    cur.execute("select avg(salary) from vacancies;")
                     rows = cur.fetchall()
                     for row in rows:
                         avg = float(row[0])
@@ -89,13 +91,17 @@ class DBManager(for_API):
         try:
             with self.connect:
                 with self.connect.cursor() as cur:
-                    cur.execute('SELECT vac_name, salary, url FROM vacancies WHERE salary > (SELECT AVG(salary) FROM '
-                                'vacancies);')
+                    cur.execute(
+                        "SELECT vac_name, salary, url FROM vacancies WHERE salary > (SELECT AVG(salary) FROM "
+                        "vacancies);"
+                    )
                     rows = cur.fetchall()
                     for row in rows:
-                        print(f'''Название вакансии - {row[0]}
+                        print(
+                            f"""Название вакансии - {row[0]}
 Зарплата - {row[1]}
-Ссылка - {row[2]}\n''')
+Ссылка - {row[2]}\n"""
+                        )
         finally:
             self.connect.close()
 
@@ -104,7 +110,10 @@ class DBManager(for_API):
         try:
             with self.connect:
                 with self.connect.cursor() as cur:
-                    cur.execute("SELECT * FROM vacancies WHERE vac_name LIKE %s", (f'%{key_word}%',))
+                    cur.execute(
+                        "SELECT * FROM vacancies WHERE vac_name LIKE %s",
+                        (f"%{key_word}%",),
+                    )
                     rows = cur.fetchall()
                     for row in rows:
                         print(row)
@@ -124,7 +133,6 @@ class DBManager(for_API):
         except:
             return True
 
-
     def print_employers(self) -> None:
         self.con()
         try:
@@ -133,9 +141,11 @@ class DBManager(for_API):
                     cur.execute("SELECT * FROM employers")
                     rows = cur.fetchall()
                     for row in rows:
-                        print(f'''id - {row[0]}
+                        print(
+                            f"""id - {row[0]}
 Название компании - {row[1]}
-Количество открытых вакансий - {row[2]}\n''')
+Количество открытых вакансий - {row[2]}\n"""
+                        )
         finally:
             self.connect.close()
 
@@ -147,9 +157,11 @@ class DBManager(for_API):
                     cur.execute("SELECT * FROM vacancies")
                     rows = cur.fetchall()
                     for row in rows:
-                        print(f'''Название вакансии - {row[0]}
+                        print(
+                            f"""Название вакансии - {row[0]}
 Ссылка - {row[1]}
 Зарплата - {row[2]}
-id работодателя - {row[3]}\n''')
+id работодателя - {row[3]}\n"""
+                        )
         finally:
             self.connect.close()
