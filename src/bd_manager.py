@@ -1,6 +1,10 @@
+import os
+
+from dotenv import load_dotenv
+
 from src.iteraction_api import API
 import psycopg2
-import database
+
 
 
 class DBManager(API):
@@ -17,11 +21,13 @@ class DBManager(API):
     """
 
     def __init__(self):
+        load_dotenv()  # Загружает переменные из .env в окружение
         super().__init__()
-        self.db = database.database
-        self.user = database.user
-        self.pswd = database.password
-        self.port = 5432
+        self.db = os.environ.get('DB_NAME')
+        self.user = os.environ.get('DB_USER')
+        self.pswd = os.environ.get('DB_PASSWORD')
+        self.port = int(os.environ.get('DB_PORT', 5432))  # Порт по умолчанию 5432
+
         self.connect = None
 
     def con(self):
