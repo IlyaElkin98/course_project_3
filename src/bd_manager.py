@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 from dotenv import load_dotenv
 
@@ -62,7 +63,7 @@ class DBManager(API):
         finally:
             self.connect.close()
 
-    def to_postgresql(self, tab_name):
+    def to_postgresql(self, tab_name: str):
         """Метод добавления вакансий и работодателей"""
         # try:
         self.con()
@@ -117,7 +118,7 @@ class DBManager(API):
         finally:
             self.connect.close()
 
-    def get_vacancies_with_keyword(self, key_word):
+    def get_vacancies_with_keyword(self, key_word: str) -> Any:
         """Метод поиска по ключевому слову"""
         self.con()
         try:
