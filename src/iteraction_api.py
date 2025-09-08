@@ -13,6 +13,7 @@ class API:
         self.employers = []
 
     def get_companies_and_vacancies_count(self):
+        """Метод выводящий информацию о компаниях и их доступных вакансий"""
         i = 1
         j = 15
         while i < j:
@@ -38,6 +39,7 @@ class API:
         return self.employers
 
     def get_all_vacancies(self):
+        """Метод выводящий данные о вакансиях"""
         params = {
             "employer_id": [],
             "area": 113,

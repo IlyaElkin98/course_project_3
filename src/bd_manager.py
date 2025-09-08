@@ -21,6 +21,7 @@ class DBManager(API):
     """
 
     def __init__(self):
+        """Конструктор принимает переменные для работы с базой данных"""
         load_dotenv()  # Загружает переменные из .env в окружение
         super().__init__()
         self.db = os.environ.get('DB_NAME')
@@ -31,11 +32,13 @@ class DBManager(API):
         self.connect = None
 
     def con(self):
+        """Метод подключения экземпляра к базе данных"""
         self.connect = psycopg2.connect(
             database=self.db, user=self.user, password=self.pswd, port=self.port
         )
 
     def create_tables(self):
+        """Метод создания таблицы"""
         self.con()
         try:
             with self.connect:
@@ -60,6 +63,7 @@ class DBManager(API):
             self.connect.close()
 
     def to_postgresql(self, tab_name):
+        """Метод добавления вакансий и работодателей"""
         # try:
         self.con()
         with self.connect:
@@ -80,6 +84,7 @@ class DBManager(API):
         self.connect.close()
 
     def get_avg_salary(self):
+        """Метод расчета средней заработной платы"""
         self.con()
         try:
             with self.connect:
@@ -93,6 +98,7 @@ class DBManager(API):
             self.connect.close()
 
     def get_vacancies_with_higher_salary(self):
+        """Метод вывода самой высокой зарплаты"""
         self.con()
         try:
             with self.connect:
@@ -112,6 +118,7 @@ class DBManager(API):
             self.connect.close()
 
     def get_vacancies_with_keyword(self, key_word):
+        """Метод поиска по ключевому слову"""
         self.con()
         try:
             with self.connect:
@@ -127,6 +134,7 @@ class DBManager(API):
             self.connect.close()
 
     def check(self):
+        """Метод, который позволяет выполнять SQL-запросы вакансий к базе данных"""
         try:
             self.con()
             with self.connect:
@@ -140,6 +148,7 @@ class DBManager(API):
             return True
 
     def print_employers(self) -> None:
+        """Метод, который позволяет выполнять SQL-запросы работодателей к базе данных"""
         self.con()
         try:
             with self.connect:
@@ -156,6 +165,7 @@ class DBManager(API):
             self.connect.close()
 
     def print_vacancies(self) -> None:
+        """Метод, который позволяет выполнять SQL-запросы вакансий к базе данных"""
         self.con()
         try:
             with self.connect:
