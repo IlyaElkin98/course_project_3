@@ -1,11 +1,10 @@
-import json
-
 import requests
 
 
 class API:
     """
-    Класс for_API создан для получения данных о компаниях и вакансиях с сайта hh.ru посредством API ключа.
+    Класс для получения данных о компаниях и вакансиях с сайта hh.ru через API.
+    Использует response.json() для парсинга ответов.
     """
 
     def __init__(self):
@@ -13,73 +12,54 @@ class API:
         self.employers = []
 
     def get_companies_and_vacancies_count(self):
-        """Метод выводящий информацию о компаниях и их доступных вакансий"""
         i = 1
         j = 15
         while i < j:
-            req = requests.get("https://api.hh.ru/employers/" + str(i))
-            data = req.content.decode()
-            req.close()
-            jo = json.loads(data)
             try:
-                if jo["open_vacancies"] > 0 and jo["open_vacancies"] is not None:
-                    self.employers.append([jo["id"], jo["name"], jo["open_vacancies"]])
-                    i += 1
-                    continue
+                response = requests.get(f"https://api.hh.ru/employers/{i}")
+                response.raise_for_status()
+                data = response.json()
+                if data.get("open_vacancies", 0) > 0:
+                    self.employers.append([data["id"], data["name"], data["open_vacancies"]])
+                i += 1
+            except (requests.RequestException, KeyError):
                 i += 1
                 j += 1
-            except:
-                i += 1
-                j += 1
-        req = requests.get("https://api.hh.ru/employers/" + str(1740))
-        data = req.content.decode()
-        req.close()
-        jo = json.loads(data)
-        self.employers.append([jo["id"], jo["name"], jo["open_vacancies"]])
+
+        try:
+            response = requests.get("https://api.hh.ru/employers/1740")
+            response.raise_for_status()
+            data = response.json()
+            self.employers.append([data["id"], data["name"], data["open_vacancies"]])
+        except (requests.RequestException, KeyError):
+            pass
+
         return self.employers
 
     def get_all_vacancies(self):
-        """Метод выводящий данные о вакансиях"""
         params = {
-            "employer_id": [],
+            "employer_id": [employer[0] for employer in self.employers],
             "area": 113,
-            "per_page": 100,  # Кол-во вакансий на 1 странице
+            "per_page": 100,
         }
-        for i in self.employers:
-            params["employer_id"].append(i[0])
-        for page in range(0, 10):
+        for page in range(10):
             params["page"] = page
-            req = requests.get("https://api.hh.ru/vacancies", params)
-            data = req.content.decode()
-            req.close()
-            data = json.loads(data)["items"]
-            for i in data:
-                try:
-                    if i["salary"]["from"] is None:
-                        self.vacancies.append(
-                            [
-                                i["name"],
-                                i["apply_alternate_url"],
-                                i["salary"]["to"],
-                                i["employer"]["id"],
-                            ]
-                        )
-                    else:
-                        self.vacancies.append(
-                            [
-                                i["name"],
-                                i["apply_alternate_url"],
-                                i["salary"]["from"],
-                                i["employer"]["id"],
-                            ]
-                        )
-                except:
-                    self.vacancies.append(
-                        [
-                            i["name"],
-                            i["apply_alternate_url"],
-                            i["salary"],
-                            i["employer"]["id"],
-                        ]
-                    )
+            try:
+                response = requests.get("https://api.hh.ru/vacancies", params=params)
+                response.raise_for_status()
+                vacancies_items = response.json().get("items", [])
+                for item in vacancies_items:
+                    salary = item.get("salary")
+                    salary_value = None
+                    if salary:
+                        salary_value = salary.get("from") or salary.get("to")
+                    self.vacancies.append([
+                        item.get("name"),
+                        item.get("apply_alternate_url"),
+                        salary_value,
+                        item.get("employer", {}).get("id"),
+                    ])
+            except requests.RequestException:
+                continue
+
         return self.vacancies
